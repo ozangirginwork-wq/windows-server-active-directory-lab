@@ -7,7 +7,8 @@ Creates department folders and SMB shares with role-based permissions.
 .DESCRIPTION
 Designed for the ozanlab.test training environment. Domain Admins and SYSTEM
 receive Full Control. Each department group receives Modify NTFS access and
-Change share access only to its matching folder.
+Change share access only to its matching folder. Reruns validate existing
+share paths and permissions before preserving the intended access entries.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -50,8 +51,37 @@ if ($PSCmdlet.ShouldProcess($RootPath, 'Create departmental share structure')) {
                 -ChangeAccess $Group | Out-Null
         }
         else {
-            Grant-SmbShareAccess -Name $Name -AccountName $DomainAdmins -AccessRight Full -Force | Out-Null
-            Grant-SmbShareAccess -Name $Name -AccountName $Group -AccessRight Change -Force | Out-Null
+            $ExpectedPath = [System.IO.Path]::GetFullPath($Path).TrimEnd('\')
+            $ActualPath = [System.IO.Path]::GetFullPath($ExistingShare.Path).TrimEnd('\')
+
+            if ($ActualPath -ne $ExpectedPath) {
+                throw "Share '$Name' already points to '$ActualPath'; expected '$ExpectedPath'."
+            }
+
+            $ExpectedAccounts = @($DomainAdmins, $Group)
+            $UnexpectedAccess = Get-SmbShareAccess -Name $Name |
+                Where-Object { $_.AccountName -notin $ExpectedAccounts }
+
+            if ($UnexpectedAccess) {
+                $UnexpectedSummary = ($UnexpectedAccess |
+                    ForEach-Object {
+                        "$($_.AccountName) [$($_.AccessControlType):$($_.AccessRight)]"
+                    }) -join ', '
+
+                throw "Share '$Name' has unexpected access entries: $UnexpectedSummary"
+            }
+
+            Grant-SmbShareAccess `
+                -Name $Name `
+                -AccountName $DomainAdmins `
+                -AccessRight Full `
+                -Force | Out-Null
+
+            Grant-SmbShareAccess `
+                -Name $Name `
+                -AccountName $Group `
+                -AccessRight Change `
+                -Force | Out-Null
         }
 
         [pscustomobject]@{
@@ -61,4 +91,3 @@ if ($PSCmdlet.ShouldProcess($RootPath, 'Create departmental share structure')) {
         }
     }
 }
-
