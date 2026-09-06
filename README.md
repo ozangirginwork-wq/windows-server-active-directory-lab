@@ -1,5 +1,7 @@
 # Windows Server Active Directory Lab
 
+![Windows Server Active Directory Lab thumbnail](docs/assets/windows-server-ad-lab-thumbnail.svg)
+
 A two-machine enterprise-style identity and access-management lab built in Oracle VirtualBox. The project demonstrates Windows Server administration, Active Directory Domain Services, DNS, Group Policy, domain-client onboarding, and least-privilege departmental file access.
 
 ## Project outcomes
