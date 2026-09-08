@@ -17,6 +17,8 @@ param(
     [string]$DomainNetBIOSName = 'OZANLAB'
 )
 
+$ErrorActionPreference = 'Stop'
+
 $Departments = [ordered]@{
     IT      = 'GG_IT_Users'
     HR      = 'GG_HR_Users'
@@ -33,15 +35,45 @@ if ($PSCmdlet.ShouldProcess($RootPath, 'Create departmental share structure')) {
         $Group = "$DomainNetBIOSName\$($Department.Value)"
         $DomainAdmins = "$DomainNetBIOSName\Domain Admins"
 
+        $ExistingShare = Get-SmbShare | Where-Object Name -EQ $Name
+
+        if ($ExistingShare) {
+            $ExpectedPath = [System.IO.Path]::GetFullPath($Path).TrimEnd('\')
+            $ActualPath = [System.IO.Path]::GetFullPath($ExistingShare.Path).TrimEnd('\')
+            if ($ActualPath -ne $ExpectedPath) {
+                throw "Share '$Name' points to '$ActualPath'; expected '$ExpectedPath'."
+            }
+            $UnexpectedShareAccess = Get-SmbShareAccess -Name $Name |
+                Where-Object { $_.AccountName -notin @($DomainAdmins, $Group) -or $_.AccessControlType -ne 'Allow' }
+            if ($UnexpectedShareAccess) {
+                throw "Share '$Name' has unexpected permissions. Review them before rerunning."
+            }
+        }
+        if (Test-Path -LiteralPath $Path) {
+            $ExpectedSids = @('S-1-5-18') + @(@($DomainAdmins, $Group) | ForEach-Object {
+                ([System.Security.Principal.NTAccount]::new($_)).Translate([System.Security.Principal.SecurityIdentifier]).Value
+            })
+            $UnexpectedAcl = (Get-Acl -LiteralPath $Path).Access | Where-Object {
+                -not $_.IsInherited -and (
+                    $_.IdentityReference.Translate([System.Security.Principal.SecurityIdentifier]).Value -notin $ExpectedSids -or
+                    $_.AccessControlType -ne 'Allow'
+                )
+            }
+            if ($UnexpectedAcl) {
+                throw "Folder '$Path' has unexpected explicit NTFS permissions. Review them before rerunning."
+            }
+        }
+
         New-Item -Path $Path -ItemType Directory -Force | Out-Null
 
         & icacls.exe $Path /inheritance:r | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw "Failed to disable inheritance on '$Path'." }
         & icacls.exe $Path /grant:r `
             'SYSTEM:(OI)(CI)(F)' `
             "${DomainAdmins}:(OI)(CI)(F)" `
             "${Group}:(OI)(CI)(M)" | Out-Null
 
-        $ExistingShare = Get-SmbShare -Name $Name -ErrorAction SilentlyContinue
+        if ($LASTEXITCODE -ne 0) { throw "Failed to set NTFS permissions on '$Path'." }
 
         if (-not $ExistingShare) {
             New-SmbShare `

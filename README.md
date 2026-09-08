@@ -197,3 +197,13 @@ Windows Server administration · Active Directory Domain Services · DNS · Grou
 
 This is an isolated educational environment using evaluation software and fictional users. It contains no production systems, credentials, or business data.
 
+
+## Safe script reruns
+
+`New-DepartmentShares.ps1 -WhatIf` previews the share-creation operation. The script checks existing share paths and unexpected explicit NTFS/share permissions before changing each department folder. It stops on PowerShell or `icacls` failures instead of continuing to publish a share after a permission error. It does not recursively reset existing child-file ACLs; inspect those separately when reusing a populated folder.
+
+These review changes were inspected statically; rerun the allowed/denied access checks in the Windows lab before treating the updated script as live-validated.
+
+## Related portfolio labs
+
+[Lab 1: Linux support & troubleshooting](https://github.com/ozangirginwork-wq/linux-it-support-troubleshooting-lab) · [Lab 3: Python IT automation](https://github.com/ozangirginwork-wq/python-it-cloud-automation-lab) · [Lab 4: AWS security incident investigation](https://github.com/ozangirginwork-wq/aws-security-incident-response-lab) · [Lab 5: Secure Terraform & CI security](https://github.com/ozangirginwork-wq/terraform-cicd-pipeline) · [Lab 6: AWS automated incident response](https://github.com/ozangirginwork-wq/aws-security-automated-incident-response)
