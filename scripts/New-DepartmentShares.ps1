@@ -9,6 +9,8 @@ Designed for the ozanlab.test training environment. Domain Admins and SYSTEM
 receive Full Control. Each department group receives Modify NTFS access and
 Change share access only to its matching folder. Reruns validate existing
 share paths and permissions before preserving the intended access entries.
+Existing explicit BUILTIN\Administrators NTFS allow entries are also preserved;
+unexpected principals and explicit deny entries still stop the rerun.
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
@@ -50,7 +52,9 @@ if ($PSCmdlet.ShouldProcess($RootPath, 'Create departmental share structure')) {
             }
         }
         if (Test-Path -LiteralPath $Path) {
-            $ExpectedSids = @('S-1-5-18') + @(@($DomainAdmins, $Group) | ForEach-Object {
+            # Preserve an existing explicit BUILTIN\Administrators allow entry,
+            # as shown in the lab evidence. Use its SID to avoid localized names.
+            $ExpectedSids = @('S-1-5-18', 'S-1-5-32-544') + @(@($DomainAdmins, $Group) | ForEach-Object {
                 ([System.Security.Principal.NTAccount]::new($_)).Translate([System.Security.Principal.SecurityIdentifier]).Value
             })
             $UnexpectedAcl = (Get-Acl -LiteralPath $Path).Access | Where-Object {
