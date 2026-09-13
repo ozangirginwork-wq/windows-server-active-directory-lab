@@ -111,7 +111,7 @@ Test-ComputerSecureChannel
 
 ![Domain membership and secure-channel validation](screenshots/04-domain-join-verification.jpg)
 
-A standard employee sign-in confirmed that `amorgan` received membership in `GG_IT_Users` without local-administrator privileges.
+The employee sign-in screenshot confirms that `amorgan` belongs to `GG_IT_Users`. The account was intended to be a standard user; this filtered group listing alone does not verify absence of local-administrator membership.
 
 ![Domain user and IT group membership](screenshots/07-domain-user-group-membership.jpg)
 
@@ -140,7 +140,7 @@ Get-Content "\\DC01\IT\amorgan-test.txt"
 Get-ChildItem "\\DC01\HR"
 ```
 
-The user successfully created and read a file in the IT share. The same user received `Access is denied` against the HR share, proving that the access-control boundary works.
+The user successfully created and read a file in the IT share. The same user received `Access is denied` against the HR share, demonstrating the IT-allowed/HR-denied boundary for this account. This test does not cover every user/share combination.
 
 ![Authorized IT access and denied HR access](screenshots/10-allowed-denied-access-test.jpg)
 
@@ -162,7 +162,7 @@ See [Troubleshooting Notes](docs/troubleshooting.md) for the diagnostic workflow
 
 - [`New-DepartmentShares.ps1`](scripts/New-DepartmentShares.ps1) creates the folders and SMB shares and applies matching role-based NTFS permissions.
 - [`Test-DomainControllerConfiguration.ps1`](scripts/Test-DomainControllerConfiguration.ps1) reports domain, OU, user, policy, DNS, and share configuration from DC01.
-- [`Test-ClientConfiguration.ps1`](scripts/Test-ClientConfiguration.ps1) verifies client addressing, DNS, domain membership, secure channel, applied GPOs, and the inactivity timeout.
+- [`Test-ClientConfiguration.ps1`](scripts/Test-ClientConfiguration.ps1) collects client addressing, DNS, domain membership, secure-channel results, applied GPOs, and the inactivity timeout for manual review; it is not an automatic pass/fail validator.
 
 Run the scripts from an elevated Windows PowerShell session. Review and adapt domain names, paths, and account names before using them outside this lab.
 
@@ -206,4 +206,9 @@ These review changes were inspected statically; rerun the allowed/denied access 
 
 ## Related portfolio labs
 
-[Lab 1: Linux support & troubleshooting](https://github.com/ozangirginwork-wq/linux-it-support-troubleshooting-lab) · [Lab 3: Python IT automation](https://github.com/ozangirginwork-wq/python-it-cloud-automation-lab) · [Lab 4: AWS security incident investigation](https://github.com/ozangirginwork-wq/aws-security-incident-response-lab) · [Lab 5: Secure Terraform & CI security](https://github.com/ozangirginwork-wq/terraform-cicd-pipeline) · [Lab 6: AWS automated incident response](https://github.com/ozangirginwork-wq/aws-security-automated-incident-response)
+- [Lab 1: Linux support & troubleshooting](https://github.com/ozangirginwork-wq/linux-it-support-troubleshooting-lab)
+- [Lab 3: Python IT automation](https://github.com/ozangirginwork-wq/python-it-cloud-automation-lab)
+- [Lab 4: AWS security incident investigation](https://github.com/ozangirginwork-wq/aws-security-incident-response-lab)
+- [Lab 5: Secure Terraform & CI security](https://github.com/ozangirginwork-wq/terraform-cicd-pipeline)
+- [Lab 6: AWS automated incident response](https://github.com/ozangirginwork-wq/aws-security-automated-incident-response)
+- [Lab 7: Secure Kubernetes deployment & troubleshooting](https://github.com/ozangirginwork-wq/secure-kubernetes-deployment-lab)

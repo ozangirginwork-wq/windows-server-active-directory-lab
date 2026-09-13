@@ -8,7 +8,6 @@ Collects validation evidence from the OzanLab domain controller.
 
 [CmdletBinding()]
 param(
-    [string]$DomainDistinguishedName = 'DC=ozanlab,DC=test',
     [string]$LabOUDistinguishedName = 'OU=OzanLab,DC=ozanlab,DC=test'
 )
 

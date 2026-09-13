@@ -2,7 +2,8 @@
 
 <#
 .SYNOPSIS
-Validates CLIENT01 network, domain, DNS, secure-channel, and GPO configuration.
+Collects CLIENT01 network, domain, DNS, secure-channel, and GPO evidence.
+Compare the displayed values with the README; this script does not assert compliance.
 #>
 
 [CmdletBinding()]
