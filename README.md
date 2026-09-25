@@ -4,6 +4,14 @@
 
 A two-machine enterprise-style identity and access-management lab built in Oracle VirtualBox. The project demonstrates Windows Server administration, Active Directory Domain Services, DNS, Group Policy, domain-client onboarding, and least-privilege departmental file access.
 
+## Evidence highlights
+
+[View three selected screenshots with captions](evidence/highlights/README.md) from the original lab work, cropped and reviewed for privacy. These historical captures were curated on September 25, 2026; they are not new test runs.
+
+![Domain membership and secure channel](evidence/highlights/01-domain-membership.png)
+
+*CLIENT01 reports ozanlab.test membership and Test-ComputerSecureChannel returns True.*
+
 ## Project outcomes
 
 - Deployed the `ozanlab.test` forest and domain on Windows Server 2025
